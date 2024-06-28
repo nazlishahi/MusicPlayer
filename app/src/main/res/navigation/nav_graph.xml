@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/musicPlayerFragment">
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.scoutmotors.musicplayer.ui.MainActivity"/>
+
+    <fragment
+        android:id="@+id/musicPlayerFragment"
+        android:name="com.scoutmotors.musicplayer.ui.MusicPlayerFragment">
+
+        <!-- TODO: Define argument (probably uri) -->
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/musicLibraryFragment"
+        android:name="com.scoutmotors.musicplayer.ui.MusicLibraryFragment"/>
+
+</navigation>
