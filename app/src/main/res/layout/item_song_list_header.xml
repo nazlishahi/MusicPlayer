@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/margin_large"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/songNameTextView"
+        android:layout_width="@dimen/flexible_component"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:layout_marginHorizontal="@dimen/margin_normal"
+        android:textColor="@color/black"
+        android:text="@string/title_song_name"
+        style="@style/TextAppearance.AppCompat.Medium"/>
+
+    <TextView
+        android:id="@+id/songAlbumTextView"
+        android:layout_width="@dimen/flexible_component"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:text="@string/title_song_album"
+        style="@style/TextAppearance.AppCompat.Medium"/>
+
+    <TextView
+        android:id="@+id/songDurationTextView"
+        android:layout_width="@dimen/flexible_component"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="end"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:textColor="@color/black"
+        android:text="@string/title_song_duration"
+        style="@style/TextAppearance.AppCompat.Medium"/>
+
+</LinearLayout>

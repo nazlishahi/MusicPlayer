@@ -11,11 +11,7 @@
 
     <fragment
         android:id="@+id/musicPlayerFragment"
-        android:name="com.scoutmotors.musicplayer.ui.MusicPlayerFragment">
-
-        <!-- TODO: Define argument (probably uri) -->
-
-    </fragment>
+        android:name="com.scoutmotors.musicplayer.ui.MusicPlayerFragment"/>
 
     <fragment
         android:id="@+id/musicLibraryFragment"

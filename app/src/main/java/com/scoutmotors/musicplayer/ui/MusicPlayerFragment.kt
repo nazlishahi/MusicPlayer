@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.media3.common.MediaMetadata
@@ -41,17 +39,17 @@ class MusicPlayerFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initObservers()
+        requireActivity().actionBar?.show()
     }
 
     override fun onStart() {
         super.onStart()
         initMediaPlayer()
-        prepareMediaItems()
+        playMusic()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         player?.release()
     }
 
@@ -68,11 +66,16 @@ class MusicPlayerFragment: Fragment() {
                 binding.mediaPlayerView.player = exoPlayer
             }
 
+        setupListeners()
+    }
+
+    private fun setupListeners() {
         player?.addListener(object: Player.Listener {
 
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 super.onMediaMetadataChanged(mediaMetadata)
                 populateCurrentSongInformation(mediaMetadata.title, mediaMetadata.artist)
+                viewModel.currentSongIndex = player?.currentMediaItemIndex ?: 0
             }
         })
 
@@ -100,31 +103,11 @@ class MusicPlayerFragment: Fragment() {
         }
     }
 
-    private fun prepareMediaItems() {
-        val assets = requireContext().assets.list("")
-        viewModel.prepareMediaItems(assets)
-    }
-
-    private fun initObservers() {
-        viewModel.viewState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is MainActivityViewModel.ViewState.StartPlayingMusic -> {
-                    customMediaPlayerViewBinding.controllerPanelView.isVisible = true
-                    player?.let {
-                        it.addMediaItems(state.mediaItemList)
-                        it.prepare()
-                        it.play()
-                    }
-                }
-                is MainActivityViewModel.ViewState.NoSongToPlay -> {
-                    customMediaPlayerViewBinding.controllerPanelView.isVisible = false
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.message_no_song_available,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+    private fun playMusic() {
+        player?.let {
+            it.setMediaItems(viewModel.mediaItemList)
+            it.prepare()
+            it.play()
         }
     }
 

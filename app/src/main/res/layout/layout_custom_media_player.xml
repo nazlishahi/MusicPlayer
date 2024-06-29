@@ -10,7 +10,7 @@
 
     <TextView
         android:id="@+id/songTitleTextView"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/flexible_component"
         android:layout_height="wrap_content"
         android:gravity="center"
         tools:text="Life is a Highway"
@@ -24,7 +24,7 @@
 
     <TextView
         android:id="@+id/songArtistTextView"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/flexible_component"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_large"
         android:padding="@dimen/margin_large"
