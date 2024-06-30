@@ -44,13 +44,21 @@ class MusicPlayerFragment: Fragment() {
 
     override fun onStart() {
         super.onStart()
-        initMediaPlayer()
-        playMusic()
+        player?.let {
+            populateCurrentSongInformation(viewModel.getCurrentSongMetadata())
+            setupListeners()
+        } ?: run {
+            initMediaPlayer()
+            setupListeners()
+            playMusic()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        player?.release()
+        if (player?.isCommandAvailable(Player.COMMAND_RELEASE) == true) {
+            player?.release()
+        }
     }
 
     private fun initMediaPlayer() {
@@ -65,8 +73,6 @@ class MusicPlayerFragment: Fragment() {
                 }
                 binding.mediaPlayerView.player = exoPlayer
             }
-
-        setupListeners()
     }
 
     private fun setupListeners() {
@@ -74,7 +80,7 @@ class MusicPlayerFragment: Fragment() {
 
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 super.onMediaMetadataChanged(mediaMetadata)
-                populateCurrentSongInformation(mediaMetadata.title, mediaMetadata.artist)
+                populateCurrentSongInformation(mediaMetadata)
                 viewModel.currentSongIndex = player?.currentMediaItemIndex ?: 0
             }
         })
@@ -107,14 +113,16 @@ class MusicPlayerFragment: Fragment() {
         player?.let {
             it.setMediaItems(viewModel.mediaItemList)
             it.prepare()
-            it.play()
+            if (it.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
+                it.play()
+            }
         }
     }
 
-    private fun populateCurrentSongInformation(title: CharSequence?, artist: CharSequence?) {
+    private fun populateCurrentSongInformation(metadata: MediaMetadata) {
         with (customMediaPlayerViewBinding) {
-            songTitleTextView.text = title
-            songArtistTextView.text = artist
+            songTitleTextView.text = metadata.title
+            songArtistTextView.text = metadata.artist
         }
     }
 }

@@ -55,7 +55,7 @@ class MainActivity: FragmentActivity() {
         when (item.itemId) {
             R.id.viewMusicLibraryItem -> {
                 navController.navigate(R.id.musicLibraryFragment)
-               return true
+                return true
             }
         }
         return super.onOptionsItemSelected(item)

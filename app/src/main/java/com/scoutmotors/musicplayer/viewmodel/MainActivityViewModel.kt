@@ -40,6 +40,7 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
                 )
 
                 val title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                val artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
                 val album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
                 val duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: 0
                 val extras = Bundle().apply {
@@ -47,6 +48,7 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
                 }
                 val metadata = MediaMetadata.Builder()
                     .setTitle(title)
+                    .setArtist(artist)
                     .setAlbumTitle(album)
                     .setExtras(extras)
                     .build()
@@ -73,7 +75,11 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
         val durationMinutes = (durationInMilliseconds / 1000) / 60
         val durationSeconds = (durationInMilliseconds / 1000) % 60
         val displaySeconds = if (durationSeconds < 10) "0$durationSeconds" else durationSeconds
-        return "$durationMinutes: $displaySeconds"
+        return "$durationMinutes:$displaySeconds"
+    }
+
+    fun getCurrentSongMetadata(): MediaMetadata {
+        return mediaItemList[currentSongIndex].mediaMetadata
     }
 
     sealed class ViewState {
