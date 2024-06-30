@@ -3,8 +3,8 @@ package com.scoutmotors.musicplayer.viewmodel
 import android.content.res.AssetManager
 import android.media.MediaMetadataRetriever
 import android.os.Bundle
-import android.webkit.MimeTypeMap
 import androidx.annotation.OptIn
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +12,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
+import com.scoutmotors.musicplayer.wrapper.MimeTypeWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -24,13 +25,16 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
     var mediaItemList: List<MediaItem> = listOf()
     var currentSongIndex = 0
 
+    @VisibleForTesting
+    var mimeTypeWrapper = MimeTypeWrapper()
+
     @OptIn(UnstableApi::class)
     fun prepareMediaItems(assetManager: AssetManager) {
         val mediaMetadataRetriever = MediaMetadataRetriever()
         assetManager.list("")?.let {
-            mediaItemList = it.filterNot { item ->
-                val mimeType = MimeTypeMap.getFileExtensionFromUrl(item)
-                MimeTypes.isAudio(mimeType) || mimeType.isNullOrEmpty()
+            mediaItemList = it.filter { item ->
+                val mimeType = mimeTypeWrapper.getFileExtensionFromUrl(item)
+                MimeTypes.isAudio(mimeType) || !mimeType.isNullOrEmpty()
             }.map { fileName ->
                 val fd = assetManager.openFd(fileName)
                 mediaMetadataRetriever.setDataSource(
