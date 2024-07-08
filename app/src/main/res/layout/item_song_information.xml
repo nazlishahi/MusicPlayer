@@ -12,24 +12,24 @@
         android:id="@+id/songNameTextView"
         android:layout_width="@dimen/flexible_component"
         android:layout_height="wrap_content"
-        android:layout_weight="0.5"
-        android:layout_marginHorizontal="@dimen/margin_normal"
-        tools:text="Song name"/>
-
-    <TextView
-        android:id="@+id/songAlbumTextView"
-        android:layout_width="@dimen/flexible_component"
-        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="start"
-        android:paddingHorizontal="@dimen/margin_small"
-        tools:text="Song album"/>
+        android:paddingHorizontal="@dimen/margin_normal"
+        tools:text="Song name"/>
 
     <TextView
         android:id="@+id/songDurationTextView"
         android:layout_width="@dimen/flexible_component"
         android:layout_height="wrap_content"
         android:layout_weight="0.25"
-        tools:text="Song duration"/>
+        tools:text="Song Duration"/>
+
+    <TextView
+        android:id="@+id/songArtistTextView"
+        android:layout_width="@dimen/flexible_component"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="@dimen/margin_normal"
+        android:gravity="end"
+        tools:text="Song Artist"/>
 
 </LinearLayout>
