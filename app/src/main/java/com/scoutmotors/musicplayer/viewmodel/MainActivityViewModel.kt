@@ -44,7 +44,7 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
                 if (it.isEmpty()) {
                     _viewState.value = ViewState.NoSongToPlay
                 } else {
-                    it.forEach { assetItem ->
+                    it.forEachIndexed { index, assetItem ->
                         try {
                             val assetFileDescriptor = assetManager.openFd(assetItem)
                             mediaMetadataRetriever.setDataSource(
@@ -62,6 +62,7 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
                                     putString(EXTRA_DURATION, updateSongDurationForDisplay(duration))
                                 }
                                 val metadata = MediaMetadata.Builder()
+                                    .setTrackNumber(index + 1)
                                     .setTitle(title)
                                     .setArtist(artist)
                                     .setExtras(extras)
