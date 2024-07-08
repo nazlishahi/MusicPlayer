@@ -4,7 +4,7 @@
     <string name="message_no_song_available">No songs available to play!</string>
     <string name="menu_item_music_library">Music Library</string>
 
-    <string name="title_song_name">Name</string>
-    <string name="title_song_album">Album</string>
+    <string name="title_song_name">Song title</string>
     <string name="title_song_duration">Duration</string>
+    <string name="title_song_artist">Artist</string>
 </resources>

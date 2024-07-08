@@ -24,6 +24,11 @@ class SongListAdapter: RecyclerView.Adapter<ViewHolder>() {
         notifyItemRangeChanged(0, list.size)
     }
 
+    fun modifySelectedSong(index: Int) {
+        currentSelectedIndex = index
+        notifyItemRangeChanged(0, list.size)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
@@ -60,7 +65,7 @@ class SongListAdapter: RecyclerView.Adapter<ViewHolder>() {
 
         fun bind(metadata: MediaMetadata, isSelected: Boolean) {
             binding.songNameTextView.text = metadata.title
-            binding.songAlbumTextView.text = metadata.albumTitle
+            binding.songArtistTextView.text = metadata.artist
             binding.songDurationTextView.text = metadata.extras?.getString(MainActivityViewModel.EXTRA_DURATION)
             itemView.isSelected = isSelected
         }

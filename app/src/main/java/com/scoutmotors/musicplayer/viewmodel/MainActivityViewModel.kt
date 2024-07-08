@@ -8,12 +8,14 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
-import com.scoutmotors.musicplayer.wrapper.MimeTypeWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,56 +24,70 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
     private val _viewState = MutableLiveData<ViewState>()
     val viewState: LiveData<ViewState> = _viewState
 
-    var mediaItemList: List<MediaItem> = listOf()
-    var currentSongIndex = 0
+    private val _musicLibraryViewState = MutableLiveData<MusicLibraryViewState>()
+    val musicLibraryViewState: LiveData<MusicLibraryViewState> = _musicLibraryViewState
+
+    var mediaItemList = mutableListOf<MediaItem>()
 
     @VisibleForTesting
-    var mimeTypeWrapper = MimeTypeWrapper()
+    var mediaMetadataRetriever = MediaMetadataRetriever()
+
+    var currentSongIndex = 0
 
     @OptIn(UnstableApi::class)
     fun prepareMediaItems(assetManager: AssetManager) {
-        val mediaMetadataRetriever = MediaMetadataRetriever()
-        assetManager.list("")?.let {
-            mediaItemList = it.filter { item ->
-                val mimeType = mimeTypeWrapper.getFileExtensionFromUrl(item)
-                MimeTypes.isAudio(mimeType) || !mimeType.isNullOrEmpty()
-            }.map { fileName ->
-                val fd = assetManager.openFd(fileName)
-                mediaMetadataRetriever.setDataSource(
-                    fd.fileDescriptor,
-                    fd.startOffset,
-                    fd.length
-                )
+        viewModelScope.launch {
+            mediaItemList.clear()
+            // Get all audio files in the assets folder
+            val allAssets = assetManager.list("")
+            allAssets?.let {
+                if (it.isEmpty()) {
+                    _viewState.value = ViewState.NoSongToPlay
+                } else {
+                    it.forEach { assetItem ->
+                        try {
+                            val assetFileDescriptor = assetManager.openFd(assetItem)
+                            mediaMetadataRetriever.setDataSource(
+                                assetFileDescriptor.fileDescriptor,
+                                assetFileDescriptor.startOffset,
+                                assetFileDescriptor.length
+                            )
+                            val mimeType = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+                            if(MimeTypes.isAudio(mimeType)) {
+                                val title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
+                                val artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                                val duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: 0
 
-                val title = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-                val artist = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-                val album = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-                val duration = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toInt() ?: 0
-                val extras = Bundle().apply {
-                    putString(EXTRA_DURATION, updateSongDurationForDisplay(duration))
+                                val extras = Bundle().apply {
+                                    putString(EXTRA_DURATION, updateSongDurationForDisplay(duration))
+                                }
+                                val metadata = MediaMetadata.Builder()
+                                    .setTitle(title)
+                                    .setArtist(artist)
+                                    .setExtras(extras)
+                                    .build()
+
+                                val mediaItem =
+                                    MediaItem.Builder()
+                                        .setUri("file:///android_asset/$assetItem")
+                                        .setMediaMetadata(metadata)
+                                        .build()
+                                mediaItemList.add(mediaItem)
+                            }
+                        } catch (e: FileNotFoundException) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    if (mediaItemList.isNotEmpty()) {
+                        _viewState.value = ViewState.NavigateToMusicPlayer
+                    } else {
+                        _viewState.value = ViewState.NoSongToPlay
+                    }
                 }
-                val metadata = MediaMetadata.Builder()
-                    .setTitle(title)
-                    .setArtist(artist)
-                    .setAlbumTitle(album)
-                    .setExtras(extras)
-                    .build()
-
-                val mediaItem =
-                    MediaItem.Builder()
-                        .setUri("file:///android_asset/$fileName")
-                        .setMediaMetadata(metadata)
-                        .build()
-                mediaItem
-            }
-
-            if (mediaItemList.isNotEmpty()) {
-                _viewState.value = ViewState.NavigateToMusicPlayer
-            } else {
+            } ?: run {
                 _viewState.value = ViewState.NoSongToPlay
             }
-        } ?: run {
-            _viewState.value = ViewState.NoSongToPlay
         }
     }
 
@@ -86,9 +102,18 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
         return mediaItemList[currentSongIndex].mediaMetadata
     }
 
+    fun onSongChanged(songIndex: Int?) {
+        currentSongIndex = songIndex ?: 0
+        _musicLibraryViewState.value = MusicLibraryViewState.UpdateMusicLibraryIndex
+    }
+
     sealed class ViewState {
         data object NavigateToMusicPlayer: ViewState()
         data object NoSongToPlay: ViewState()
+    }
+
+    sealed class MusicLibraryViewState {
+        data object UpdateMusicLibraryIndex: MusicLibraryViewState()
     }
 
     companion object {

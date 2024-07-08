@@ -2,10 +2,10 @@ package com.scoutmotors.musicplayer
 
 import android.content.res.AssetFileDescriptor
 import android.content.res.AssetManager
+import android.media.MediaMetadataRetriever
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.scoutmotors.musicplayer.viewmodel.MainActivityViewModel
-import com.scoutmotors.musicplayer.wrapper.MimeTypeWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
@@ -28,6 +28,7 @@ import org.mockito.kotlin.KArgumentCaptor
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
+import java.io.FileDescriptor
 
 @RunWith(MockitoJUnitRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,12 +37,14 @@ class MainActivityViewModelTest {
     private lateinit var viewModel: MainActivityViewModel
 
     @Mock
-    private lateinit var mimeTypeWrapper: MimeTypeWrapper
-
-    @Mock
     lateinit var viewStateObserver: Observer<MainActivityViewModel.ViewState>
 
     private lateinit var viewStateCaptor: KArgumentCaptor<MainActivityViewModel.ViewState>
+
+    @Mock
+    lateinit var musicLibraryViewStateObserver: Observer<MainActivityViewModel.MusicLibraryViewState>
+
+    private lateinit var musicLibraryViewStateCaptor: KArgumentCaptor<MainActivityViewModel.MusicLibraryViewState>
 
     private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
 
@@ -54,16 +57,18 @@ class MainActivityViewModelTest {
         Dispatchers.setMain(dispatcher)
 
         viewStateCaptor = argumentCaptor<MainActivityViewModel.ViewState>()
+        musicLibraryViewStateCaptor = argumentCaptor<MainActivityViewModel.MusicLibraryViewState>()
 
         viewModel = MainActivityViewModel()
-        viewModel.mimeTypeWrapper = mimeTypeWrapper
 
         viewModel.viewState.observeForever(viewStateObserver)
+        viewModel.musicLibraryViewState.observeForever(musicLibraryViewStateObserver)
     }
 
     @After
     fun tearDown() {
         viewModel.viewState.removeObserver(viewStateObserver)
+        viewModel.musicLibraryViewState.removeObserver(musicLibraryViewStateObserver)
         Dispatchers.resetMain()
     }
 
@@ -71,10 +76,14 @@ class MainActivityViewModelTest {
     fun `when asset folder contains one or more songs, then verify navigate to music player`() = runTest {
         val mockAssetManager = mock<AssetManager>()
         val assetFileDescriptor = mock<AssetFileDescriptor>()
+        val mockMetadataRetriever = mock<MediaMetadataRetriever>()
+        val fileDescriptor = mock<FileDescriptor>()
         val mockUrl = "Mock song name.mp3"
+        viewModel.mediaMetadataRetriever = mockMetadataRetriever
         Mockito.`when`(mockAssetManager.list("")).thenReturn(arrayOf(mockUrl))
         Mockito.`when`(mockAssetManager.openFd(mockUrl)).thenReturn(assetFileDescriptor)
-        Mockito.`when`(mimeTypeWrapper.getFileExtensionFromUrl(mockUrl)).thenReturn("mp3")
+        Mockito.`when`(mockMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)).thenReturn("audio/mpeg")
+        Mockito.`when`(assetFileDescriptor.fileDescriptor).thenReturn(fileDescriptor)
 
         viewModel.prepareMediaItems(mockAssetManager)
 
@@ -97,5 +106,16 @@ class MainActivityViewModelTest {
 
         Assert.assertEquals(viewStateCaptor.allValues.size, 1)
         Assert.assertEquals(viewStateCaptor.allValues[0], MainActivityViewModel.ViewState.NoSongToPlay)
+    }
+
+    @Test
+    fun `when song index changes, verify that music library index is updated`() {
+        viewModel.onSongChanged(1)
+
+        Mockito.verify(musicLibraryViewStateObserver, times(1))
+            .onChanged(musicLibraryViewStateCaptor.capture())
+
+        Assert.assertEquals(musicLibraryViewStateCaptor.allValues.size, 1)
+        Assert.assertEquals(musicLibraryViewStateCaptor.allValues[0], MainActivityViewModel.MusicLibraryViewState.UpdateMusicLibraryIndex)
     }
 }

@@ -47,6 +47,7 @@ class MusicPlayerFragment: Fragment() {
         player?.let {
             populateCurrentSongInformation(viewModel.getCurrentSongMetadata())
             setupListeners()
+            managePlayPauseButton()
         } ?: run {
             initMediaPlayer()
             setupListeners()
@@ -81,7 +82,7 @@ class MusicPlayerFragment: Fragment() {
             override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
                 super.onMediaMetadataChanged(mediaMetadata)
                 populateCurrentSongInformation(mediaMetadata)
-                viewModel.currentSongIndex = player?.currentMediaItemIndex ?: 0
+                viewModel.onSongChanged(player?.currentMediaItemIndex)
             }
         })
 
@@ -98,15 +99,28 @@ class MusicPlayerFragment: Fragment() {
         }
 
         customMediaPlayerViewBinding.playPauseButton.setOnClickListener {
-            val imageRes = if (player?.isPlaying == true) {
-                player?.pause()
-                R.drawable.play_arrow
-            } else {
-                player?.play()
-                R.drawable.pause
-            }
-            customMediaPlayerViewBinding.playPauseButton.setImageResource(imageRes)
+            togglePlayPauseButton()
         }
+    }
+
+    private fun managePlayPauseButton() {
+        val imageRes = if (player?.isPlaying == true) {
+            R.drawable.pause
+        } else {
+            R.drawable.play_arrow
+        }
+        customMediaPlayerViewBinding.playPauseButton.setImageResource(imageRes)
+    }
+
+    private fun togglePlayPauseButton() {
+        val imageRes = if (player?.isPlaying == true) {
+            player?.pause()
+            R.drawable.play_arrow
+        } else {
+            player?.play()
+            R.drawable.pause
+        }
+        customMediaPlayerViewBinding.playPauseButton.setImageResource(imageRes)
     }
 
     private fun playMusic() {

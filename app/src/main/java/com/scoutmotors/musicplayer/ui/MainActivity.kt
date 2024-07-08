@@ -43,7 +43,7 @@ class MainActivity: FragmentActivity() {
 
         initNavigationGraph()
 
-        prepareMediaItems()
+        viewModel.prepareMediaItems(assets)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -90,9 +90,5 @@ class MainActivity: FragmentActivity() {
                 }
             }
         }
-    }
-
-    private fun prepareMediaItems() {
-        viewModel.prepareMediaItems(assets)
     }
 }

@@ -33,6 +33,7 @@ class MusicLibraryFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
         requireActivity().actionBar?.hide()
+        initObserver()
     }
 
     private fun initRecyclerView() {
@@ -42,5 +43,15 @@ class MusicLibraryFragment: Fragment() {
             addAll(viewModel.mediaItemList.map { ListItem.SongItem(it) })
         }
         adapter.populate(displayList, viewModel.currentSongIndex)
+    }
+
+    private fun initObserver() {
+        viewModel.musicLibraryViewState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is MainActivityViewModel.MusicLibraryViewState.UpdateMusicLibraryIndex -> {
+                    adapter.modifySelectedSong(viewModel.currentSongIndex)
+                }
+            }
+        }
     }
 }
