@@ -13,19 +13,19 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
-import javax.inject.Inject
 
-@HiltViewModel
-class MainActivityViewModel @Inject constructor(): ViewModel() {
+class MainActivityViewModel: ViewModel() {
 
     private val _viewState = MutableLiveData<ViewState>()
     val viewState: LiveData<ViewState> = _viewState
 
     private val _musicLibraryViewState = MutableLiveData<MusicLibraryViewState>()
     val musicLibraryViewState: LiveData<MusicLibraryViewState> = _musicLibraryViewState
+
+    private val _action = MutableLiveData<Action>()
+    val action: LiveData<Action> = _action
 
     var mediaItemList = mutableListOf<MediaItem>()
 
@@ -108,6 +108,12 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
         _musicLibraryViewState.value = MusicLibraryViewState.UpdateMusicLibraryIndex
     }
 
+    fun onMusicLibraryItemClicked(index: Int) {
+        if (index != currentSongIndex) {
+            _action.value = Action.PlaySongAtIndex(index)
+        }
+    }
+
     sealed class ViewState {
         data object NavigateToMusicPlayer: ViewState()
         data object NoSongToPlay: ViewState()
@@ -115,6 +121,10 @@ class MainActivityViewModel @Inject constructor(): ViewModel() {
 
     sealed class MusicLibraryViewState {
         data object UpdateMusicLibraryIndex: MusicLibraryViewState()
+    }
+
+    sealed class Action {
+        data class PlaySongAtIndex(val index: Int): Action()
     }
 
     companion object {

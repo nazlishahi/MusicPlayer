@@ -13,9 +13,7 @@ import com.scoutmotors.musicplayer.R
 import com.scoutmotors.musicplayer.databinding.FragmentMusicPlayerBinding
 import com.scoutmotors.musicplayer.databinding.LayoutCustomMediaPlayerBinding
 import com.scoutmotors.musicplayer.viewmodel.MainActivityViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class MusicPlayerFragment: Fragment() {
 
     private val viewModel: MainActivityViewModel by activityViewModels()
@@ -44,36 +42,13 @@ class MusicPlayerFragment: Fragment() {
 
     override fun onStart() {
         super.onStart()
-        player?.let {
-            populateCurrentSongInformation(viewModel.getCurrentSongMetadata())
-            setupListeners()
-            managePlayPauseButton()
-        } ?: run {
-            initMediaPlayer()
-            setupListeners()
-            playMusic()
-        }
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (player?.isCommandAvailable(Player.COMMAND_RELEASE) == true) {
-            player?.release()
-        }
-    }
+        player = (requireActivity() as MainActivity).player
+        binding.mediaPlayerView.player = player
 
-    private fun initMediaPlayer() {
-        player =
-            ExoPlayer.Builder(requireContext())
-            .build()
-            .also { exoPlayer ->
-                with (exoPlayer) {
-                    playWhenReady = true
-                    repeatMode = Player.REPEAT_MODE_ALL
-                    setHandleAudioBecomingNoisy(true)
-                }
-                binding.mediaPlayerView.player = exoPlayer
-            }
+        populateCurrentSongInformation(viewModel.getCurrentSongMetadata())
+        setupListeners()
+        managePlayPauseButton()
     }
 
     private fun setupListeners() {
@@ -83,6 +58,11 @@ class MusicPlayerFragment: Fragment() {
                 super.onMediaMetadataChanged(mediaMetadata)
                 populateCurrentSongInformation(mediaMetadata)
                 viewModel.onSongChanged(player?.currentMediaItemIndex)
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                managePlayPauseButton()
             }
         })
 
@@ -121,16 +101,6 @@ class MusicPlayerFragment: Fragment() {
             R.drawable.pause
         }
         customMediaPlayerViewBinding.playPauseButton.setImageResource(imageRes)
-    }
-
-    private fun playMusic() {
-        player?.let {
-            it.setMediaItems(viewModel.mediaItemList)
-            it.prepare()
-            if (it.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
-                it.play()
-            }
-        }
     }
 
     private fun populateCurrentSongInformation(metadata: MediaMetadata) {

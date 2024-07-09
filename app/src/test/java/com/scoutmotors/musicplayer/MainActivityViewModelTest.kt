@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.KArgumentCaptor
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import java.io.FileDescriptor
 
@@ -46,6 +47,11 @@ class MainActivityViewModelTest {
 
     private lateinit var musicLibraryViewStateCaptor: KArgumentCaptor<MainActivityViewModel.MusicLibraryViewState>
 
+    @Mock
+    lateinit var actionObserver: Observer<MainActivityViewModel.Action>
+
+    private lateinit var actionCaptor: KArgumentCaptor<MainActivityViewModel.Action>
+
     private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
 
     @get:Rule
@@ -58,17 +64,20 @@ class MainActivityViewModelTest {
 
         viewStateCaptor = argumentCaptor<MainActivityViewModel.ViewState>()
         musicLibraryViewStateCaptor = argumentCaptor<MainActivityViewModel.MusicLibraryViewState>()
+        actionCaptor = argumentCaptor<MainActivityViewModel.Action>()
 
         viewModel = MainActivityViewModel()
 
         viewModel.viewState.observeForever(viewStateObserver)
         viewModel.musicLibraryViewState.observeForever(musicLibraryViewStateObserver)
+        viewModel.action.observeForever(actionObserver)
     }
 
     @After
     fun tearDown() {
         viewModel.viewState.removeObserver(viewStateObserver)
         viewModel.musicLibraryViewState.removeObserver(musicLibraryViewStateObserver)
+        viewModel.action.removeObserver(actionObserver)
         Dispatchers.resetMain()
     }
 
@@ -117,5 +126,28 @@ class MainActivityViewModelTest {
 
         Assert.assertEquals(musicLibraryViewStateCaptor.allValues.size, 1)
         Assert.assertEquals(musicLibraryViewStateCaptor.allValues[0], MainActivityViewModel.MusicLibraryViewState.UpdateMusicLibraryIndex)
+    }
+
+    @Test
+    fun `when a new song is clicked in the music library, verify that proper action is taken`() {
+        viewModel.currentSongIndex = 0
+        viewModel.onMusicLibraryItemClicked(1)
+
+        Mockito.verify(actionObserver, times(1))
+            .onChanged(actionCaptor.capture())
+
+        Assert.assertEquals(actionCaptor.allValues.size, 1)
+        Assert.assertEquals(actionCaptor.allValues[0], MainActivityViewModel.Action.PlaySongAtIndex(1))
+    }
+
+    @Test
+    fun `when playing song is clicked in the music library, verify that nothing happens`() {
+        viewModel.currentSongIndex = 1
+        viewModel.onMusicLibraryItemClicked(1)
+
+        Mockito.verify(actionObserver, never())
+            .onChanged(actionCaptor.capture())
+
+        Assert.assertTrue(actionCaptor.allValues.isEmpty())
     }
 }

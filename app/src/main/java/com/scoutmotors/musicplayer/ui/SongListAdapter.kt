@@ -11,7 +11,9 @@ import com.scoutmotors.musicplayer.data.ListItem
 import com.scoutmotors.musicplayer.databinding.ItemSongInformationBinding
 import com.scoutmotors.musicplayer.viewmodel.MainActivityViewModel
 
-class SongListAdapter: RecyclerView.Adapter<ViewHolder>() {
+class SongListAdapter(
+    private val clickListener: MusicLibraryFragment.OnSongClickedListener
+): RecyclerView.Adapter<ViewHolder>() {
 
     private val list = mutableListOf<ListItem>()
 
@@ -46,6 +48,9 @@ class SongListAdapter: RecyclerView.Adapter<ViewHolder>() {
                         .mediaMetadata
                 val isSelected = (position == currentSelectedIndex + 1)
                 (holder as SongViewHolder).bind(metadata, isSelected)
+                holder.itemView.setOnClickListener {
+                    clickListener.onSongClicked(position - 1)
+                }
             }
         }
     }

@@ -17,7 +17,11 @@ class MusicLibraryFragment: Fragment() {
     private lateinit var binding: FragmentMusicLibraryBinding
 
     private val adapter by lazy {
-        SongListAdapter()
+        SongListAdapter(object: OnSongClickedListener {
+            override fun onSongClicked(index: Int) {
+                viewModel.onMusicLibraryItemClicked(index)
+            }
+        })
     }
 
     override fun onCreateView(
@@ -53,5 +57,9 @@ class MusicLibraryFragment: Fragment() {
                 }
             }
         }
+    }
+
+    interface OnSongClickedListener {
+        fun onSongClicked(index: Int)
     }
 }
