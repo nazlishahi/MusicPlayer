@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.Player.STATE_READY
 import androidx.media3.exoplayer.ExoPlayer
 import com.scoutmotors.musicplayer.R
 import com.scoutmotors.musicplayer.databinding.FragmentMusicPlayerBinding
@@ -62,7 +63,9 @@ class MusicPlayerFragment: Fragment() {
 
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
-                managePlayPauseButton()
+                if (playbackState == STATE_READY) {
+                    managePlayPauseButton()
+                }
             }
         })
 
