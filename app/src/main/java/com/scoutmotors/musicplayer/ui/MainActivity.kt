@@ -7,14 +7,16 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.scoutmotors.musicplayer.R
 import com.scoutmotors.musicplayer.databinding.ActivityMainBinding
+import com.scoutmotors.musicplayer.helper.MusicPlayerHelper
 import com.scoutmotors.musicplayer.viewmodel.MainActivityViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity: FragmentActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
@@ -23,7 +25,8 @@ class MainActivity: FragmentActivity() {
 
     private lateinit var navController: NavController
 
-    var player: ExoPlayer? = null
+    @Inject
+    lateinit var musicPlayerHelper: MusicPlayerHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +43,6 @@ class MainActivity: FragmentActivity() {
         setContentView(binding.root)
 
         initToolbar()
-
-        initMediaPlayer()
 
         initObservers()
 
@@ -75,34 +76,11 @@ class MainActivity: FragmentActivity() {
         navController = navHostFragment.navController
     }
 
-    private fun initMediaPlayer() {
-        player =
-            ExoPlayer.Builder(this)
-                .build()
-                .also { exoPlayer ->
-                    with (exoPlayer) {
-                        playWhenReady = true
-                        repeatMode = Player.REPEAT_MODE_ALL
-                        setHandleAudioBecomingNoisy(true)
-                    }
-                }
-    }
-
-    private fun startPlayingAllSongs() {
-        player?.let {
-            it.setMediaItems(viewModel.mediaItemList)
-            it.prepare()
-            if (it.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
-                it.play()
-            }
-        }
-    }
-
     private fun initObservers() {
         viewModel.viewState.observe(this) { state ->
             when (state) {
                 is MainActivityViewModel.ViewState.NavigateToMusicPlayer -> {
-                    startPlayingAllSongs()
+                    musicPlayerHelper.startPlayingAllSongs(viewModel.mediaItemList)
                     navController.currentDestination?.let {
                         navController.navigate(R.id.musicPlayerFragment)
                     } ?: run {
@@ -122,14 +100,7 @@ class MainActivity: FragmentActivity() {
         viewModel.action.observe(this) { state ->
             when (state) {
                 is MainActivityViewModel.Action.PlaySongAtIndex -> {
-                    player?.let {
-                        if (it.isCommandAvailable(Player.COMMAND_SEEK_TO_MEDIA_ITEM)) {
-                            it.seekTo(state.index, 0)
-                            if (it.isCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
-                                it.play()
-                            }
-                        }
-                    }
+                    musicPlayerHelper.playSongAtIndex(state.index)
                 }
             }
         }
@@ -137,9 +108,6 @@ class MainActivity: FragmentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        if (player?.isCommandAvailable(Player.COMMAND_RELEASE) == true) {
-            player?.release()
-        }
+        musicPlayerHelper.release()
     }
 }
