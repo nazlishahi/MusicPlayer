@@ -3,7 +3,9 @@
 This is a Music Player Android app that utilizes Jetpack Media3 libraries and other relevant AndroidX dependencies to play a list of songs and display an interactive playlist.
 
 Screen recordings of working app:
+
 [Music Player Main Demo Video](https://drive.google.com/file/d/1WLsGIGGS3SlL-EgklWMtLACk5rU0smL4/view?usp=drive_link)
+
 [Demo with Dark Mode enabled](https://drive.google.com/file/d/1o3b9z_gMcxlgnniVv6G_ce8x3oVx5FoG/view?usp=drive_link)
 
 
