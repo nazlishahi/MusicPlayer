@@ -5,7 +5,8 @@ This is a Music Player Android app that utilizes Jetpack Media3 libraries and ot
 ## Building the App
 
 1. Clone the repository in Android Studio using the URL: [MusicPlayer](https://github.com/nazlishahi/MusicPlayer.git).
-2. Once all dependencies are downloaded and files are indexed, select "Run 'app'" from the "Run" menu to run the app on an emulator or device of your choice.
+2. Once all dependencies are downloaded and files are indexed, "Sync project with gradle files" and "Build".
+3. select "Run 'app'" from the "Run" menu to run the app on an emulator or device of your choice.
 
 ## App Sections
 
