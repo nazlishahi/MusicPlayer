@@ -17,8 +17,8 @@ The app consists of the following sections:
 
 2. **Music Library Screen:**
     - Accessible via the top menu on the Music Player screen.
-    - Users can click on a song to play it.
     - Highlights the current song.
+    - Users can click on a song to play it.
 
 ## Highlighted Android Technologies
 
@@ -37,14 +37,14 @@ The app consists of the following sections:
 - The music library screen shows song information and highlights the current song without interaction initially.
 - The music library is accessed from a dropdown menu on the player screen.
 - Designed to support both light and dark modes, and portrait/landscape orientations.
-- Handles edge cases, such as no files available to play, with appropriate error messages.
+- Handles edge cases, such as no files available to play, with an appropriate error message.
 
 ## Trade-offs, Technical Decisions, and Assumptions
 
 ### Trade-offs
 1. **Custom View for Music Player Screen**:
     - Allows for custom UI components and app-specific functionality.
-    - Requires additional customization for future features (e.g., progress bar, artwork, shuffle).
+    - Requires additional customization for future features (e.g., song progress bar, artwork, shuffle).
     - The benefits outweigh the drawbacks for current and future flexibility.
 2. **Music Library Access**:
     - Accessed through the menu item, hiding the ActionBar on the library screen to avoid redundancy.
@@ -82,3 +82,4 @@ The app consists of the following sections:
     - Swipe gestures for song navigation.
     - Fetching and playing songs from remote sources.
     - Mini player for minimized music player screen.
+    - Espresso UI tests.
