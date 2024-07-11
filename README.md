@@ -83,4 +83,5 @@ The app consists of the following sections:
     - Swipe gestures for song navigation.
     - Fetching and playing songs from remote sources.
     - Mini player for minimized music player screen.
+    - Implement MediaService to display and interact with current song on notifications bar.
     - Espresso UI tests.
