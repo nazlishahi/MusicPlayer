@@ -100,7 +100,7 @@ class MainActivityViewModelTest {
             .onChanged(viewStateCaptor.capture())
 
         Assert.assertEquals(viewStateCaptor.allValues.size, 1)
-        Assert.assertEquals(viewStateCaptor.allValues[0], MainActivityViewModel.ViewState.NavigateToMusicPlayer)
+        Assert.assertEquals(viewStateCaptor.allValues[0], MainActivityViewModel.ViewState.PlayAllSongs)
     }
 
     @Test

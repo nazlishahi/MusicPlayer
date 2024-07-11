@@ -81,7 +81,7 @@ class MainActivityViewModel: ViewModel() {
                     }
 
                     if (mediaItemList.isNotEmpty()) {
-                        _viewState.value = ViewState.NavigateToMusicPlayer
+                        _viewState.value = ViewState.PlayAllSongs
                     } else {
                         _viewState.value = ViewState.NoSongToPlay
                     }
@@ -115,7 +115,7 @@ class MainActivityViewModel: ViewModel() {
     }
 
     sealed class ViewState {
-        data object NavigateToMusicPlayer: ViewState()
+        data object PlayAllSongs: ViewState()
         data object NoSongToPlay: ViewState()
     }
 

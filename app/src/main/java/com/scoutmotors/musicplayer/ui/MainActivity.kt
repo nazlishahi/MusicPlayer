@@ -74,18 +74,14 @@ class MainActivity: FragmentActivity() {
     private fun initNavigationGraph() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
+        navController.setGraph(R.navigation.nav_graph)
     }
 
     private fun initObservers() {
         viewModel.viewState.observe(this) { state ->
             when (state) {
-                is MainActivityViewModel.ViewState.NavigateToMusicPlayer -> {
+                is MainActivityViewModel.ViewState.PlayAllSongs -> {
                     musicPlayerHelper.startPlayingAllSongs(viewModel.mediaItemList)
-                    navController.currentDestination?.let {
-                        navController.navigate(R.id.musicPlayerFragment)
-                    } ?: run {
-                        navController.setGraph(R.navigation.nav_graph)
-                    }
                 }
                 is MainActivityViewModel.ViewState.NoSongToPlay -> {
                     Toast.makeText(
